@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -15,8 +16,103 @@
             font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', 'Fira Code', monospace;
             min-height: 100vh;
             padding: 1.5rem;
+            overflow-x: hidden;
         }
 
+        /* ENTRY SCREEN STYLES - Clean version */
+        .entry-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(145deg, #0a0f1e 0%, #0c1222 100%);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: opacity 0.8s ease, visibility 0.8s ease;
+            cursor: pointer;
+        }
+
+        .entry-screen.hide {
+            opacity: 0;
+            visibility: hidden;
+        }
+
+        .entry-card {
+            background: rgba(18, 25, 45, 0.85);
+            backdrop-filter: blur(20px);
+            border-radius: 2.5rem;
+            border: 1px solid rgba(72, 187, 255, 0.4);
+            padding: 3rem 4rem;
+            text-align: center;
+            animation: floatGlow 2s ease-in-out infinite;
+            box-shadow: 0 25px 45px -12px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(56, 189, 248, 0.2);
+            transition: transform 0.2s;
+        }
+
+        .entry-card:hover {
+            transform: scale(1.02);
+        }
+
+        @keyframes floatGlow {
+            0%, 100% { transform: translateY(0px); box-shadow: 0 25px 45px -12px rgba(0, 0, 0, 0.6); }
+            50% { transform: translateY(-10px); box-shadow: 0 35px 55px -12px rgba(59, 130, 246, 0.3); }
+        }
+
+        .entry-title {
+            font-size: 3rem;
+            font-weight: 600;
+            background: linear-gradient(135deg, #c0e0ff, #3b82f6);
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+            margin-bottom: 1rem;
+            letter-spacing: 2px;
+        }
+
+        .enter-text {
+            font-size: 1.2rem;
+            color: #8caee0;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            margin-top: 1rem;
+            opacity: 0.8;
+            transition: opacity 0.2s;
+        }
+
+        .entry-card:hover .enter-text {
+            opacity: 1;
+            color: #3b82f6;
+        }
+
+        /* Audio Control Button */
+        .audio-control {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 100;
+            background: rgba(18, 25, 45, 0.8);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(72, 187, 255, 0.3);
+            border-radius: 3rem;
+            padding: 0.5rem 1rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.8rem;
+            color: #8caee0;
+        }
+
+        .audio-control:hover {
+            border-color: #3b82f6;
+            transform: scale(1.05);
+        }
+
+        /* Rest of your original styles */
         .glass-card {
             max-width: 1400px;
             width: 100%;
@@ -89,6 +185,7 @@
             align-items: center;
             gap: 8px;
             box-shadow: 0 4px 10px rgba(37, 99, 235, 0.3);
+            cursor: pointer;
         }
 
         .social-btn:hover {
@@ -287,20 +384,30 @@
         }
 
         @media (max-width: 700px) {
-            .header {
-                flex-direction: column;
-                align-items: start;
-            }
-            .tab-btn {
-                padding: 0.7rem 1rem;
-            }
-            .tab-content {
-                padding: 1rem;
-            }
+            body { padding: 0.8rem; }
+            .header { flex-direction: column; align-items: start; }
+            .tab-btn { padding: 0.7rem 1rem; }
+            .tab-content { padding: 1rem; }
+            .entry-title { font-size: 2rem; }
+            .entry-card { padding: 2rem 2.5rem; }
         }
     </style>
 </head>
 <body>
+
+<!-- ENTRY SCREEN - Clean, click anywhere to enter -->
+<div id="entryScreen" class="entry-screen">
+    <div class="entry-card">
+        <div class="entry-title">7swazys</div>
+        <div class="enter-text">ENTER</div>
+    </div>
+</div>
+
+<!-- AUDIO CONTROL BUTTON -->
+<div id="audioControl" class="audio-control" style="display: none;">
+    <span>🔊</span> <span id="audioStatus">Music Playing</span>
+</div>
+
 <div class="glass-card">
     <div class="header">
         <div class="header-left">
@@ -312,13 +419,11 @@
         </div>
     </div>
 
-    <!-- Tabs navigation: Repositories and About only (Utilities removed) -->
     <div class="tabs">
         <button class="tab-btn active" data-tab="repos">Repositories</button>
         <button class="tab-btn" data-tab="about">About & Links</button>
     </div>
 
-    <!-- Repositories Tab (live GitHub fetch) -->
     <div id="reposTab" class="tab-content active">
         <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; margin-bottom: 1.2rem;">
             <div class="profile-row" style="margin-bottom: 0; flex:1">
@@ -335,10 +440,8 @@
         <div style="margin-top: 1rem; font-size:0.7rem; color:#4c6188; text-align:center;">repositories update automatically on refresh — shows latest pushes</div>
     </div>
 
-    <!-- About Tab (includes Discord invite, Roblox profile, Roblox group, TikTok, etc.) -->
     <div id="aboutTab" class="tab-content">
         <div style="max-width: 900px;">
-            <!-- Bio card -->
             <div class="profile-card">
                 <h3 style="color:#c0e0ff; margin-bottom: 0.75rem;">7swazys</h3>
                 <p style="color:#9ab3d5; line-height: 1.5; margin-bottom: 1rem;">
@@ -352,14 +455,12 @@
                 </div>
             </div>
 
-            <!-- Roblox Profile (fetched via embed + link) -->
             <div class="profile-card">
                 <h3 style="color:#c0e0ff; margin-bottom: 0.75rem;">Roblox Profile</h3>
                 <p style="color:#9ab3d5; margin-bottom: 0.5rem;">User ID: 5181378476</p>
                 <div class="links-grid">
                     <a href="https://www.roblox.com/user.aspx?ID=5181378476" target="_blank" class="social-btn" style="background:#1e293b;">View Roblox Profile</a>
                 </div>
-                <!-- live profile preview card (using roblox headshot thumbnail api) -->
                 <div class="roblox-embed" style="display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;">
                     <img src="https://www.roblox.com/headshot-thumbnail/image?userId=5181378476&width=100&height=100&format=png" alt="Roblox avatar" style="border-radius: 1rem; background: #0f1422; width: 64px; height: 64px; object-fit: cover;" 
                          onerror="this.src='https://www.roblox.com/headshot-thumbnail/image?userId=5181378476&width=100&height=100&format=png'; this.onerror=null;">
@@ -373,7 +474,6 @@
                 </div>
             </div>
 
-            <!-- Roblox Group -->
             <div class="profile-card">
                 <h3 style="color:#c0e0ff; margin-bottom: 0.75rem;">Roblox Group</h3>
                 <p style="color:#9ab3d5;">SGNRS - script hub & community group</p>
@@ -386,7 +486,6 @@
                 </div>
             </div>
 
-            <!-- Discord Server invite (moved from header) -->
             <div class="profile-card">
                 <h3 style="color:#c0e0ff; margin-bottom: 0.75rem;">Discord Community</h3>
                 <p style="color:#9ab3d5;">Join the official server for script support, updates, and dev talks.</p>
@@ -395,7 +494,6 @@
                 </div>
             </div>
 
-            <!-- TikTok -->
             <div class="profile-card">
                 <h3 style="color:#c0e0ff; margin-bottom: 0.75rem;">TikTok</h3>
                 <p style="color:#9ab3d5;">Follow for roblox scripting content and showcases.</p>
@@ -404,7 +502,6 @@
                 </div>
             </div>
 
-            <!-- extra github footer link -->
             <div class="profile-card" style="text-align:center;">
                 <a href="https://github.com/7swazys" target="_blank" class="social-btn" style="padding:0.4rem 1.2rem;">View all repositories on GitHub</a>
             </div>
@@ -418,7 +515,171 @@
 
 <script>
     (function() {
+        // ========================================
+        // AUDIO SYSTEM
+        // ========================================
+        const clickSoundUrl = 'https://files.catbox.moe/3doj7d.mp3';
+        const introMusicUrl = 'https://files.catbox.moe/z3dwlq.mp3';
+        const bgMusicUrl = 'https://files.catbox.moe/tgewfw.mp3';
+        
+        let clickAudio = null;
+        let introAudio = null;
+        let bgAudio = null;
+        let isAudioEnabled = false;
+        let isIntroPlaying = false;
+        
         // DOM elements
+        const entryScreen = document.getElementById('entryScreen');
+        const audioControl = document.getElementById('audioControl');
+        const audioStatusSpan = document.getElementById('audioStatus');
+        
+        // Function to play click sound
+        function playClickSound() {
+            if (!isAudioEnabled) return;
+            try {
+                if (clickAudio) {
+                    clickAudio.currentTime = 0;
+                    clickAudio.play().catch(e => console.log('Click play error:', e));
+                }
+            } catch(e) { console.log('Click error:', e); }
+        }
+        
+        // Initialize audio elements
+        function initAudio() {
+            clickAudio = new Audio(clickSoundUrl);
+            clickAudio.volume = 0.5;
+            clickAudio.preload = 'auto';
+            
+            introAudio = new Audio(introMusicUrl);
+            introAudio.volume = 0.7;
+            introAudio.preload = 'auto';
+            
+            bgAudio = new Audio(bgMusicUrl);
+            bgAudio.volume = 0.4;
+            bgAudio.loop = true;
+            bgAudio.preload = 'auto';
+            
+            // When intro ends, start background music
+            introAudio.addEventListener('ended', () => {
+                if (isAudioEnabled && bgAudio) {
+                    bgAudio.play().catch(e => console.log('BG play error:', e));
+                    if (audioStatusSpan) audioStatusSpan.innerText = 'Music Playing';
+                }
+                isIntroPlaying = false;
+            });
+        }
+        
+        // Start the audio sequence
+        function startAudioSequence() {
+            if (!isAudioEnabled) return;
+            
+            // Stop any playing audio
+            if (bgAudio) {
+                bgAudio.pause();
+                bgAudio.currentTime = 0;
+            }
+            
+            // Play intro music
+            if (introAudio) {
+                introAudio.currentTime = 0;
+                introAudio.play().catch(e => console.log('Intro play error:', e));
+                isIntroPlaying = true;
+                if (audioStatusSpan) audioStatusSpan.innerText = 'Playing Intro...';
+            }
+        }
+        
+        // Toggle background music
+        function toggleMusic() {
+            if (!isAudioEnabled) return;
+            
+            if (bgAudio && !bgAudio.paused && !isIntroPlaying) {
+                bgAudio.pause();
+                if (audioStatusSpan) audioStatusSpan.innerText = 'Music Paused';
+            } else if (bgAudio && bgAudio.paused && !isIntroPlaying) {
+                bgAudio.play().catch(e => console.log('Resume error:', e));
+                if (audioStatusSpan) audioStatusSpan.innerText = 'Music Playing';
+            }
+        }
+        
+        // ENTER SCREEN - click anywhere to enter
+        entryScreen.addEventListener('click', () => {
+            // Initialize audio system
+            initAudio();
+            isAudioEnabled = true;
+            
+            // Hide entry screen with animation
+            entryScreen.classList.add('hide');
+            
+            // Show audio control button
+            audioControl.style.display = 'flex';
+            
+            // Start the audio sequence (intro then bg)
+            startAudioSequence();
+            
+            // Remove entry screen from DOM after animation
+            setTimeout(() => {
+                entryScreen.style.display = 'none';
+            }, 800);
+        });
+        
+        // Audio control click
+        audioControl.addEventListener('click', toggleMusic);
+        
+        // ========================================
+        // TAB SWITCHING WITH CLICK SOUNDS
+        // ========================================
+        const tabs = document.querySelectorAll('.tab-btn');
+        const reposTab = document.getElementById('reposTab');
+        const aboutTab = document.getElementById('aboutTab');
+        
+        function switchTab(tabId) {
+            playClickSound(); // Play sound on tab switch
+            
+            if (tabId === 'repos') {
+                reposTab.classList.add('active');
+                aboutTab.classList.remove('active');
+            } else if (tabId === 'about') {
+                aboutTab.classList.add('active');
+                reposTab.classList.remove('active');
+            }
+            tabs.forEach(btn => {
+                const btnTab = btn.getAttribute('data-tab');
+                if (btnTab === tabId) btn.classList.add('active');
+                else btn.classList.remove('active');
+            });
+        }
+        
+        tabs.forEach(btn => {
+            btn.addEventListener('click', () => {
+                const tabId = btn.getAttribute('data-tab');
+                if (tabId === 'repos') switchTab('repos');
+                else if (tabId === 'about') switchTab('about');
+            });
+        });
+        
+        // ========================================
+        // BUTTON CLICK SOUNDS (all buttons)
+        // ========================================
+        document.querySelectorAll('.social-btn, .refresh-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                playClickSound();
+            });
+        });
+        
+        // Also add to any dynamically created buttons
+        const observer = new MutationObserver(() => {
+            document.querySelectorAll('.social-btn, .refresh-btn').forEach(btn => {
+                if (!btn.hasAttribute('data-sound-bound')) {
+                    btn.setAttribute('data-sound-bound', 'true');
+                    btn.addEventListener('click', () => playClickSound());
+                }
+            });
+        });
+        observer.observe(document.body, { childList: true, subtree: true });
+        
+        // ========================================
+        // GITHUB REPOSITORY FETCHING
+        // ========================================
         const reposContainer = document.getElementById('reposContainer');
         const repoCountSpan = document.getElementById('repoCount');
         const lastUpdatedSpan = document.getElementById('lastUpdated');
@@ -427,7 +688,6 @@
         const GITHUB_USERNAME = '7swazys';
         const GITHUB_API_URL = `https://api.github.com/users/${GITHUB_USERNAME}/repos?sort=updated&per_page=50`;
         
-        // Fetch and render repositories
         async function fetchAndRenderRepos() {
             reposContainer.innerHTML = '<div class="loading-skeleton">fetching latest repositories from GitHub ...</div>';
             try {
@@ -500,51 +760,20 @@
             });
         }
         
-        // Tab switching logic
-        const tabs = document.querySelectorAll('.tab-btn');
-        const reposTab = document.getElementById('reposTab');
-        const aboutTab = document.getElementById('aboutTab');
-        
-        function switchTab(tabId) {
-            if (tabId === 'repos') {
-                reposTab.classList.add('active');
-                aboutTab.classList.remove('active');
-            } else if (tabId === 'about') {
-                aboutTab.classList.add('active');
-                reposTab.classList.remove('active');
-            }
-            tabs.forEach(btn => {
-                const btnTab = btn.getAttribute('data-tab');
-                if (btnTab === tabId) btn.classList.add('active');
-                else btn.classList.remove('active');
-            });
-        }
-        
-        tabs.forEach(btn => {
-            btn.addEventListener('click', () => {
-                const tabId = btn.getAttribute('data-tab');
-                if (tabId === 'repos') switchTab('repos');
-                else if (tabId === 'about') switchTab('about');
-            });
-        });
-        
         if (refreshBtn) {
             refreshBtn.addEventListener('click', () => {
                 fetchAndRenderRepos();
             });
         }
         
-        // initial load
         fetchAndRenderRepos();
         
-        // optional auto refresh every 2 min only when repos tab visible
         setInterval(() => {
             if (reposTab && reposTab.classList.contains('active')) {
                 fetchAndRenderRepos().catch(e=>console.warn);
             }
         }, 120000);
         
-        // fetch additional user profile stats
         async function fetchUserProfile() {
             try {
                 const res = await fetch(`https://api.github.com/users/${GITHUB_USERNAME}`);
@@ -559,7 +788,6 @@
         }
         fetchUserProfile();
         
-        // roblox avatar thumbnail fix (already in img tag)
         const robloxImg = document.querySelector('.roblox-embed img');
         if (robloxImg) {
             robloxImg.src = `https://www.roblox.com/headshot-thumbnail/image?userId=5181378476&width=100&height=100&format=png`;
