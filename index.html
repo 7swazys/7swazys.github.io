@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>7swazys · DevHub | Dashboard + Repos + Links</title>
+    <title>7swazys · DevHub | Interactive Background</title>
     <style>
         * {
             margin: 0;
@@ -11,15 +11,57 @@
             box-sizing: border-box;
         }
 
-        body {
+        /* ========================================
+           INTERACTIVE SQUARE BACKGROUND
+           (FULL PAGE, DYNAMIC GRID)
+        ======================================== */
+        .background-squares {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(70px, 1fr));
+            grid-auto-rows: 70px;
             background: linear-gradient(145deg, #0a0f1e 0%, #0c1222 100%);
+            pointer-events: none; /* Allows clicks to pass through to the entry screen and UI */
+        }
+
+        .square {
+            border: 1px solid rgba(59, 130, 246, 0.06);
+            transition: all 0.2s ease;
+            background: rgba(18, 25, 45, 0.2);
+            backdrop-filter: blur(1px);
+            pointer-events: auto; /* So squares can detect mouse hover */
+        }
+
+        /* Hover effect with glow and scaling */
+        .square:hover {
+            background: rgba(59, 130, 246, 0.4);
+            border-color: rgba(59, 130, 246, 0.7);
+            box-shadow: 0 0 25px rgba(59, 130, 246, 0.5);
+            transform: scale(1.05);
+            transition: all 0.12s ease;
+            z-index: 2;
+        }
+
+        /* Fade effect for squares far from cursor */
+        .square.fade-out {
+            opacity: 0.25;
+            transition: opacity 0.25s ease;
+        }
+
+        body {
             font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', 'Fira Code', monospace;
             min-height: 100vh;
             padding: 1.5rem;
             overflow-x: hidden;
+            position: relative;
         }
 
-        /* ENTRY SCREEN STYLES - Clean version */
+        /* ENTRY SCREEN STYLES - with higher z-index to be above background */
         .entry-screen {
             position: fixed;
             top: 0;
@@ -112,8 +154,10 @@
             transform: scale(1.05);
         }
 
-        /* Rest of your original styles */
+        /* Main Glass Card - higher z-index to sit above squares */
         .glass-card {
+            position: relative;
+            z-index: 5;
             max-width: 1400px;
             width: 100%;
             margin: 0 auto;
@@ -390,10 +434,17 @@
             .tab-content { padding: 1rem; }
             .entry-title { font-size: 2rem; }
             .entry-card { padding: 2rem 2.5rem; }
+            .background-squares {
+                grid-template-columns: repeat(auto-fill, minmax(50px, 1fr));
+                grid-auto-rows: 50px;
+            }
         }
     </style>
 </head>
 <body>
+
+<!-- INTERACTIVE SQUARE BACKGROUND -->
+<div class="background-squares" id="squareBackground"></div>
 
 <!-- ENTRY SCREEN - Clean, click anywhere to enter -->
 <div id="entryScreen" class="entry-screen">
@@ -516,7 +567,62 @@
 <script>
     (function() {
         // ========================================
-        // AUDIO SYSTEM
+        // INTERACTIVE SQUARE BACKGROUND LOGIC
+        // ========================================
+        const container = document.getElementById('squareBackground');
+        const squareSize = 70; // matches CSS grid min size
+        
+        function createSquares() {
+            const width = window.innerWidth;
+            const height = window.innerHeight;
+            const cols = Math.ceil(width / squareSize);
+            const rows = Math.ceil(height / squareSize);
+            const totalSquares = cols * rows;
+            
+            container.innerHTML = '';
+            container.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
+            container.style.gridAutoRows = `${squareSize}px`;
+            
+            for (let i = 0; i < totalSquares; i++) {
+                const square = document.createElement('div');
+                square.classList.add('square');
+                container.appendChild(square);
+            }
+            
+            // Add mouse move effect for fade (distance-based)
+            document.addEventListener('mousemove', function(e) {
+                const squaresList = document.querySelectorAll('.square');
+                const mouseX = e.clientX;
+                const mouseY = e.clientY;
+                
+                squaresList.forEach(sq => {
+                    const rect = sq.getBoundingClientRect();
+                    const sqCenterX = rect.left + rect.width / 2;
+                    const sqCenterY = rect.top + rect.height / 2;
+                    const distance = Math.hypot(mouseX - sqCenterX, mouseY - sqCenterY);
+                    const maxDist = 250;
+                    
+                    if (distance < maxDist) {
+                        sq.classList.remove('fade-out');
+                        const intensity = 1 - (distance / maxDist);
+                        sq.style.opacity = 0.5 + intensity * 0.5;
+                        sq.style.background = `rgba(59, 130, 246, ${0.2 + intensity * 0.3})`;
+                        sq.style.borderColor = `rgba(59, 130, 246, ${0.3 + intensity * 0.4})`;
+                    } else {
+                        sq.classList.add('fade-out');
+                        sq.style.opacity = '';
+                        sq.style.background = '';
+                        sq.style.borderColor = '';
+                    }
+                });
+            });
+        }
+        
+        createSquares();
+        window.addEventListener('resize', () => createSquares());
+        
+        // ========================================
+        // AUDIO SYSTEM (from your original)
         // ========================================
         const clickSoundUrl = 'https://files.catbox.moe/3doj7d.mp3';
         const introMusicUrl = 'https://files.catbox.moe/z3dwlq.mp3';
@@ -528,12 +634,10 @@
         let isAudioEnabled = false;
         let isIntroPlaying = false;
         
-        // DOM elements
         const entryScreen = document.getElementById('entryScreen');
         const audioControl = document.getElementById('audioControl');
         const audioStatusSpan = document.getElementById('audioStatus');
         
-        // Function to play click sound
         function playClickSound() {
             if (!isAudioEnabled) return;
             try {
@@ -544,7 +648,6 @@
             } catch(e) { console.log('Click error:', e); }
         }
         
-        // Initialize audio elements
         function initAudio() {
             clickAudio = new Audio(clickSoundUrl);
             clickAudio.volume = 0.5;
@@ -559,7 +662,6 @@
             bgAudio.loop = true;
             bgAudio.preload = 'auto';
             
-            // When intro ends, start background music
             introAudio.addEventListener('ended', () => {
                 if (isAudioEnabled && bgAudio) {
                     bgAudio.play().catch(e => console.log('BG play error:', e));
@@ -569,17 +671,12 @@
             });
         }
         
-        // Start the audio sequence
         function startAudioSequence() {
             if (!isAudioEnabled) return;
-            
-            // Stop any playing audio
             if (bgAudio) {
                 bgAudio.pause();
                 bgAudio.currentTime = 0;
             }
-            
-            // Play intro music
             if (introAudio) {
                 introAudio.currentTime = 0;
                 introAudio.play().catch(e => console.log('Intro play error:', e));
@@ -588,10 +685,8 @@
             }
         }
         
-        // Toggle background music
         function toggleMusic() {
             if (!isAudioEnabled) return;
-            
             if (bgAudio && !bgAudio.paused && !isIntroPlaying) {
                 bgAudio.pause();
                 if (audioStatusSpan) audioStatusSpan.innerText = 'Music Paused';
@@ -601,28 +696,17 @@
             }
         }
         
-        // ENTER SCREEN - click anywhere to enter
         entryScreen.addEventListener('click', () => {
-            // Initialize audio system
             initAudio();
             isAudioEnabled = true;
-            
-            // Hide entry screen with animation
             entryScreen.classList.add('hide');
-            
-            // Show audio control button
             audioControl.style.display = 'flex';
-            
-            // Start the audio sequence (intro then bg)
             startAudioSequence();
-            
-            // Remove entry screen from DOM after animation
             setTimeout(() => {
                 entryScreen.style.display = 'none';
             }, 800);
         });
         
-        // Audio control click
         audioControl.addEventListener('click', toggleMusic);
         
         // ========================================
@@ -633,8 +717,7 @@
         const aboutTab = document.getElementById('aboutTab');
         
         function switchTab(tabId) {
-            playClickSound(); // Play sound on tab switch
-            
+            playClickSound();
             if (tabId === 'repos') {
                 reposTab.classList.add('active');
                 aboutTab.classList.remove('active');
@@ -657,16 +740,12 @@
             });
         });
         
-        // ========================================
-        // BUTTON CLICK SOUNDS (all buttons)
-        // ========================================
         document.querySelectorAll('.social-btn, .refresh-btn').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 playClickSound();
             });
         });
         
-        // Also add to any dynamically created buttons
         const observer = new MutationObserver(() => {
             document.querySelectorAll('.social-btn, .refresh-btn').forEach(btn => {
                 if (!btn.hasAttribute('data-sound-bound')) {
@@ -684,7 +763,6 @@
         const repoCountSpan = document.getElementById('repoCount');
         const lastUpdatedSpan = document.getElementById('lastUpdated');
         const refreshBtn = document.getElementById('refreshReposBtn');
-        
         const GITHUB_USERNAME = '7swazys';
         const GITHUB_API_URL = `https://api.github.com/users/${GITHUB_USERNAME}/repos?sort=updated&per_page=50`;
         
@@ -693,21 +771,15 @@
             try {
                 const controller = new AbortController();
                 const timeoutId = setTimeout(() => controller.abort(), 8000);
-                const response = await fetch(GITHUB_API_URL, {
-                    signal: controller.signal,
-                    headers: { 'Accept': 'application/vnd.github.v3+json' }
-                });
+                const response = await fetch(GITHUB_API_URL, { signal: controller.signal, headers: { 'Accept': 'application/vnd.github.v3+json' } });
                 clearTimeout(timeoutId);
-                
                 if (!response.ok) throw new Error(`GitHub API error: ${response.status}`);
                 const repos = await response.json();
                 if (!Array.isArray(repos) || repos.length === 0) throw new Error('No repositories found');
-                
                 repos.sort((a,b) => new Date(b.updated_at) - new Date(a.updated_at));
                 renderRepoGrid(repos);
                 repoCountSpan.innerHTML = `${repos.length} repositories`;
-                const lastUpdate = new Date().toLocaleTimeString();
-                lastUpdatedSpan.innerHTML = `updated ${lastUpdate}`;
+                lastUpdatedSpan.innerHTML = `updated ${new Date().toLocaleTimeString()}`;
             } catch (err) {
                 console.error(err);
                 reposContainer.innerHTML = `<div class="loading-skeleton" style="color:#ffaeaa;">failed to fetch repos: ${err.message}<br><button id="retryFetchBtn" style="margin-top:10px; background:#2563eb; border:none; padding:6px 16px; border-radius:30px; color:white;">retry</button></div>`;
@@ -723,31 +795,19 @@
             repos.forEach(repo => {
                 const card = document.createElement('div');
                 card.className = 'repo-card';
-                
                 const name = repo.name || 'unnamed';
                 const description = repo.description ? repo.description.substring(0, 100) : 'No description provided';
                 const language = repo.language || 'N/A';
                 const stars = repo.stargazers_count || 0;
                 const updatedAt = repo.updated_at ? new Date(repo.updated_at).toLocaleDateString() : 'recent';
                 const repoUrl = repo.html_url || `https://github.com/${GITHUB_USERNAME}/${name}`;
-                
                 card.innerHTML = `
-                    <div class="repo-name">
-                        <a href="${repoUrl}" target="_blank">${escapeHtml(name)}</a>
-                    </div>
+                    <div class="repo-name"><a href="${repoUrl}" target="_blank">${escapeHtml(name)}</a></div>
                     <div class="repo-desc">${escapeHtml(description)}</div>
-                    <div class="repo-meta">
-                        <span>⭐ ${stars}</span>
-                        <span class="lang-badge">${escapeHtml(language)}</span>
-                        <span>updated ${updatedAt}</span>
-                    </div>
+                    <div class="repo-meta"><span>⭐ ${stars}</span><span class="lang-badge">${escapeHtml(language)}</span><span>updated ${updatedAt}</span></div>
                 `;
                 reposContainer.appendChild(card);
             });
-            
-            if (repos.length === 0) {
-                reposContainer.innerHTML = '<div class="loading-skeleton">no public repositories visible? check github profile</div>';
-            }
         }
         
         function escapeHtml(str) {
@@ -760,19 +820,9 @@
             });
         }
         
-        if (refreshBtn) {
-            refreshBtn.addEventListener('click', () => {
-                fetchAndRenderRepos();
-            });
-        }
-        
+        if (refreshBtn) refreshBtn.addEventListener('click', () => fetchAndRenderRepos());
         fetchAndRenderRepos();
-        
-        setInterval(() => {
-            if (reposTab && reposTab.classList.contains('active')) {
-                fetchAndRenderRepos().catch(e=>console.warn);
-            }
-        }, 120000);
+        setInterval(() => { if (reposTab && reposTab.classList.contains('active')) fetchAndRenderRepos().catch(e=>console.warn); }, 120000);
         
         async function fetchUserProfile() {
             try {
