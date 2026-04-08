@@ -665,7 +665,7 @@
             introAudio.addEventListener('ended', () => {
                 if (isAudioEnabled && bgAudio) {
                     bgAudio.play().catch(e => console.log('BG play error:', e));
-                    if (audioStatusSpan) audioStatusSpan.innerText = 'Music Playing';
+                    if (audioStatusSpan) audioStatusSpan.innerText = 'playing';
                 }
                 isIntroPlaying = false;
             });
