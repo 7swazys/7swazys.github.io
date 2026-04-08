@@ -456,7 +456,7 @@
 
 <!-- AUDIO CONTROL BUTTON -->
 <div id="audioControl" class="audio-control" style="display: none;">
-    <span></span> <span id="audioStatus">music</span>
+    <span></span> <span id="audioStatus">stop</span>
 </div>
 
 <div class="glass-card">
@@ -689,7 +689,7 @@
             if (!isAudioEnabled) return;
             if (bgAudio && !bgAudio.paused && !isIntroPlaying) {
                 bgAudio.pause();
-                if (audioStatusSpan) audioStatusSpan.innerText = 'Music Paused';
+                if (audioStatusSpan) audioStatusSpan.innerText = 'paused';
             } else if (bgAudio && bgAudio.paused && !isIntroPlaying) {
                 bgAudio.play().catch(e => console.log('Resume error:', e));
                 if (audioStatusSpan) audioStatusSpan.innerText = 'Music Playing';
