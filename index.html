@@ -11,10 +11,7 @@
             box-sizing: border-box;
         }
 
-        /* ========================================
-           INTERACTIVE SQUARE BACKGROUND
-           (FULL PAGE, DYNAMIC GRID)
-        ======================================== */
+       
         .background-squares {
             position: fixed;
             top: 0;
@@ -34,10 +31,9 @@
             transition: all 0.2s ease;
             background: rgba(18, 25, 45, 0.2);
             backdrop-filter: blur(1px);
-            pointer-events: auto; /* So squares can detect mouse hover */
+            pointer-events: auto; 
         }
 
-        /* Hover effect with glow and scaling */
         .square:hover {
             background: rgba(59, 130, 246, 0.4);
             border-color: rgba(59, 130, 246, 0.7);
@@ -47,7 +43,6 @@
             z-index: 2;
         }
 
-        /* Fade effect for squares far from cursor */
         .square.fade-out {
             opacity: 0.25;
             transition: opacity 0.25s ease;
@@ -61,7 +56,6 @@
             position: relative;
         }
 
-        /* ENTRY SCREEN STYLES - with higher z-index to be above background */
         .entry-screen {
             position: fixed;
             top: 0;
@@ -129,7 +123,6 @@
             color: #3b82f6;
         }
 
-        /* Audio Control Button */
         .audio-control {
             position: fixed;
             bottom: 20px;
@@ -154,7 +147,6 @@
             transform: scale(1.05);
         }
 
-        /* Main Glass Card - higher z-index to sit above squares */
         .glass-card {
             position: relative;
             z-index: 5;
@@ -443,10 +435,8 @@
 </head>
 <body>
 
-<!-- INTERACTIVE SQUARE BACKGROUND -->
 <div class="background-squares" id="squareBackground"></div>
 
-<!-- ENTRY SCREEN - Clean, click anywhere to enter -->
 <div id="entryScreen" class="entry-screen">
     <div class="entry-card">
         <div class="entry-title">7swazys</div>
@@ -454,7 +444,6 @@
     </div>
 </div>
 
-<!-- AUDIO CONTROL BUTTON -->
 <div id="audioControl" class="audio-control" style="display: none;">
     <span></span> <span id="audioStatus">stop</span>
 </div>
@@ -566,11 +555,9 @@
 
 <script>
     (function() {
-        // ========================================
-        // INTERACTIVE SQUARE BACKGROUND LOGIC
-        // ========================================
+        
         const container = document.getElementById('squareBackground');
-        const squareSize = 70; // matches CSS grid min size
+        const squareSize = 70; 
         
         function createSquares() {
             const width = window.innerWidth;
@@ -589,7 +576,6 @@
                 container.appendChild(square);
             }
             
-            // Add mouse move effect for fade (distance-based)
             document.addEventListener('mousemove', function(e) {
                 const squaresList = document.querySelectorAll('.square');
                 const mouseX = e.clientX;
@@ -621,11 +607,9 @@
         createSquares();
         window.addEventListener('resize', () => createSquares());
         
-        // ========================================
-        // AUDIO SYSTEM (from your original)
-        // ========================================
+       
         const clickSoundUrl = 'https://files.catbox.moe/3doj7d.mp3';
-        const introMusicUrl = 'https://files.catbox.moe/z3dwlq.mp3';
+        const introMusicUrl = 'https://litter.catbox.moe/ko0uj6wvcuoumcvx.mp3';
         const bgMusicUrl = 'https://files.catbox.moe/tgewfw.mp3';
         
         let clickAudio = null;
@@ -709,9 +693,7 @@
         
         audioControl.addEventListener('click', toggleMusic);
         
-        // ========================================
-        // TAB SWITCHING WITH CLICK SOUNDS
-        // ========================================
+        
         const tabs = document.querySelectorAll('.tab-btn');
         const reposTab = document.getElementById('reposTab');
         const aboutTab = document.getElementById('aboutTab');
@@ -756,9 +738,7 @@
         });
         observer.observe(document.body, { childList: true, subtree: true });
         
-        // ========================================
-        // GITHUB REPOSITORY FETCHING
-        // ========================================
+      
         const reposContainer = document.getElementById('reposContainer');
         const repoCountSpan = document.getElementById('repoCount');
         const lastUpdatedSpan = document.getElementById('lastUpdated');
